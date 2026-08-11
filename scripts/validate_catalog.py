@@ -55,12 +55,31 @@ REQUIRED_METADATA_KEYS = {
 REQUIRED_DOCUMENTATION_SECTIONS = (
     "## Tujuan",
     "## Parameter",
+    "## Contoh Dummy Siap Copy-Paste",
     "## Alur Perhitungan",
     "## Kolom Hasil",
     "## Asumsi dan Keterbatasan",
     "## Validasi yang Disarankan",
     "## Referensi Resmi",
 )
+DUMMY_EXAMPLE_HEADER = "\n".join(
+    (
+        "-- CONTOH DUMMY SIAP COPY-PASTE KE FORTISIEM.",
+        "-- Nilai dummy kemungkinan tidak menghasilkan data. Ganti hanya pada salinan lokal.",
+        "-- Jangan commit nilai deployment atau hasil query sebenarnya.",
+    )
+)
+STANDARD_DUMMY_VALUES = {
+    "PERIOD_START": "2026-08-17 00:00:00",
+    "PERIOD_END": "2026-08-18 00:00:00",
+    "TIMEZONE": "UTC",
+    "CUSTOMER_NAME": "Dummy_Organisasi",
+    "COLLECTOR_ID": "999999",
+    "COLLECTOR_NAME": "Dummy_Kolektor",
+    "HEARTBEAT_WINDOW_SECONDS": "600",
+    "TARGET_PERCENT": "90",
+    "DELAY_THRESHOLD_SECONDS": "3600",
+}
 FORBIDDEN_QUERY_ARTIFACT_SUFFIXES = {
     ".csv",
     ".gif",
@@ -258,6 +277,49 @@ def validate_sql(path: Path, declared: set[str], errors: list[str]) -> None:
             errors.append(f"{relative(path)}: found {description}")
 
 
+def validate_dummy_example(
+    path: Path,
+    canonical_path: Path,
+    declared: set[str],
+    errors: list[str],
+) -> None:
+    try:
+        example = path.read_text(encoding="utf-8")
+        canonical = canonical_path.read_text(encoding="utf-8")
+    except (OSError, UnicodeError) as error:
+        errors.append(f"{relative(path)}: cannot read dummy example: {error}")
+        return
+
+    if not example.startswith(DUMMY_EXAMPLE_HEADER + "\n\n"):
+        errors.append(f"{relative(path)}: dummy example header is not standard")
+    if PLACEHOLDER_PATTERN.search(example):
+        errors.append(f"{relative(path)}: dummy example contains unresolved placeholders")
+
+    unknown_parameters = declared - STANDARD_DUMMY_VALUES.keys()
+    if unknown_parameters:
+        errors.append(
+            f"{relative(path)}: no standard dummy values for "
+            f"{sorted(unknown_parameters)}"
+        )
+        return
+
+    _, separator, example_body = example.partition("\n\n")
+    if not separator:
+        errors.append(f"{relative(path)}: dummy header must end with a blank line")
+        return
+
+    expected_body = canonical
+    for name in declared:
+        expected_body = expected_body.replace(
+            "{{" + name + "}}",
+            STANDARD_DUMMY_VALUES[name],
+        )
+    if example_body != expected_body:
+        errors.append(
+            f"{relative(path)}: dummy example does not match the canonical template"
+        )
+
+
 def validate_documentation(path: Path, errors: list[str]) -> None:
     try:
         documentation = path.read_text(encoding="utf-8")
@@ -319,9 +381,10 @@ def main() -> int:
     for metadata_path in metadata_paths:
         query_directory = metadata_path.parent
         sql_path = query_directory / "query.sql.tmpl"
+        example_path = query_directory / "query.example.sql.tmpl"
         documentation_path = query_directory / "README.md"
 
-        for required_path in (sql_path, documentation_path):
+        for required_path in (sql_path, example_path, documentation_path):
             if not required_path.is_file():
                 errors.append(f"{relative(query_directory)}: missing {required_path.name}")
 
@@ -352,6 +415,8 @@ def main() -> int:
         declared = parameter_names(metadata_path, metadata, errors)
         if sql_path.is_file():
             validate_sql(sql_path, declared, errors)
+        if sql_path.is_file() and example_path.is_file():
+            validate_dummy_example(example_path, sql_path, declared, errors)
         if documentation_path.is_file():
             validate_documentation(documentation_path, errors)
 

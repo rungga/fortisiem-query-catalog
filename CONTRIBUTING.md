@@ -23,13 +23,16 @@ dan seluruh konteks sensitif tetap harus diperiksa.
 
 1. Baca [SANITIZATION.md](SANITIZATION.md) dan sanitasi di luar working tree.
 2. Buat folder `queries/<category>/<ID>-<slug>/`.
-3. Tambahkan `query.sql.tmpl`, `metadata.json`, dan `README.md`.
+3. Tambahkan `query.sql.tmpl`, `query.example.sql.tmpl`, `metadata.json`, dan
+  `README.md`.
 4. Gunakan placeholder `{{UPPER_SNAKE_CASE}}` untuk seluruh nilai deployment.
-5. Jelaskan tujuan, setiap blok logika, formula, kolom hasil, asumsi,
+5. Isi contoh siap copy-paste hanya dengan data dummy standar dari
+  [DUMMY_DATA_GUIDE.md](DUMMY_DATA_GUIDE.md).
+6. Jelaskan tujuan, setiap blok logika, formula, kolom hasil, asumsi,
    keterbatasan, performa, dan skenario validasi.
-6. Tautkan dokumentasi resmi yang relevan dan catat versi serta tanggal akses.
-7. Perbarui [INDEX.md](INDEX.md).
-8. Jalankan validator dan tinjau seluruh diff sebelum membuka pull request.
+7. Tautkan dokumentasi resmi yang relevan dan catat versi serta tanggal akses.
+8. Perbarui [INDEX.md](INDEX.md).
+9. Jalankan validator dan tinjau seluruh diff sebelum membuka pull request.
 
 Maintainer dapat menyesuaikan ID agar tetap unik.
 
@@ -65,6 +68,8 @@ menggantikan review teknis, privasi, dan kepemilikan.
 ## Yang Tidak Boleh Dikirim
 
 - query yang telah berisi nilai deployment nyata;
+- contoh query yang masih memiliki placeholder atau data yang menyerupai
+  deployment nyata;
 - hasil pencarian, raw event, log, export, screenshot, atau packet capture;
 - secret dalam bentuk aktif maupun yang dianggap sudah kedaluwarsa;
 - materi internal organisasi atau customer;

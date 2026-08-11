@@ -21,6 +21,16 @@ dapat dibuktikan oleh hasilnya.
 
 Jelaskan validasi nilai, batas inklusif atau eksklusif, dan aturan quoting.
 
+## Contoh Dummy Siap Copy-Paste
+
+Tautkan `query.example.sql.tmpl` dan jelaskan bahwa seluruh isinya dapat disalin
+ke **Analytics > Advanced Search > Query Console**. Contoh wajib memakai nilai
+dummy standar dari [DUMMY_DATA_GUIDE.md](DUMMY_DATA_GUIDE.md), tidak boleh
+memiliki placeholder, dan kemungkinan menghasilkan data kosong.
+
+Jelaskan koreksi tipe yang relevan, misalnya ID numerik tidak boleh diisi string
+dan tanggal ClickHouse harus menggunakan format `YYYY-MM-DD HH:MM:SS`.
+
 ## Alur Perhitungan
 
 ```mermaid

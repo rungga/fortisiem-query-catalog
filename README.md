@@ -12,6 +12,9 @@ dengan bantuan AI setelah query disanitasi, kemudian ditinjau oleh maintainer.
 > Fortinet. Jangan mengirim query, hasil pencarian, atau data lingkungan yang
 > belum disanitasi ke layanan AI atau repositori publik.
 
+Lihat [Panduan Data Dummy dan Copy-Paste FortiSIEM](DUMMY_DATA_GUIDE.md) untuk
+contoh nilai aman dan langkah menjalankan seluruh query melalui Query Console.
+
 ## Katalog
 
 Lihat [INDEX.md](INDEX.md) untuk seluruh query.
@@ -26,6 +29,8 @@ Lihat [INDEX.md](INDEX.md) untuk seluruh query.
 Setiap folder query wajib memiliki:
 
 - `query.sql.tmpl`: SQL tersanitasi dengan placeholder eksplisit;
+- `query.example.sql.tmpl`: SQL lengkap dengan data dummy yang siap
+    di-copy-paste ke FortiSIEM;
 - `metadata.json`: judul, kategori, parameter, status privasi, kompatibilitas,
   dan rujukan terstruktur; serta
 - `README.md`: tujuan, pembahasan setiap blok, formula, hasil, asumsi,
@@ -37,12 +42,13 @@ Pemindaian otomatis hanya menemukan pola umum; review manusia tetap wajib.
 ## Cara Menggunakan
 
 1. Baca dokumentasi query sampai bagian asumsi dan keterbatasan.
-2. Salin `query.sql.tmpl` ke berkas lokal di luar working tree Git.
-3. Ganti seluruh placeholder dengan nilai deployment Anda.
-4. Pastikan rentang waktu dan filter dibuat sesempit mungkin.
-5. Format dan uji query pada non-production atau periode data yang kecil.
-6. Bandingkan hasil dengan sumber data yang telah diketahui.
-7. Jangan commit salinan SQL yang telah dirender atau hasil query.
+2. Buka `query.example.sql.tmpl` untuk melihat query lengkap dengan data dummy.
+3. Salin seluruh query ke **Analytics > Advanced Search > Query Console**.
+4. Untuk penggunaan nyata, ganti dummy hanya pada salinan lokal di luar Git.
+5. Pastikan tipe, quoting, rentang waktu, dan filter sudah benar.
+6. Klik **Format**, periksa error, lalu jalankan pada periode data yang kecil.
+7. Bandingkan hasil dengan sumber data yang telah diketahui.
+8. Jangan commit salinan berisi data nyata atau hasil query.
 
 FortiSIEM Advanced Search menggunakan SQL untuk menelusuri Event Database
 ClickHouse. Berdasarkan dokumentasi Fortinet 7.5.1, Advanced Search hanya
@@ -58,6 +64,7 @@ sebelum menggunakan query dari katalog ini.
 ├── scripts/               # Validator lokal dan CI
 ├── .github/workflows/     # Pemeriksaan otomatis
 ├── INDEX.md               # Indeks query
+├── DUMMY_DATA_GUIDE.md    # Data dummy dan alur copy-paste FortiSIEM
 ├── SANITIZATION.md        # Standar penghapusan data sensitif
 ├── CONTRIBUTING.md        # Aturan kontribusi
 ├── SECURITY.md            # Pelaporan kebocoran secara privat

@@ -40,6 +40,27 @@ Pada FortiSIEM Advanced Search, pastikan atribut `deviceTime` tersedia dan, bila
 tidak muncul langsung pada Database Schema, pilih melalui daftar **Attributes
 used** sebelum menjalankan query.
 
+## Contoh Dummy Siap Copy-Paste
+
+Buka [query.example.sql.tmpl](query.example.sql.tmpl), lalu salin seluruh isinya
+ke **Analytics > Advanced Search > Query Console**. Contoh tersebut memakai:
+
+| Parameter | Nilai dummy |
+| --- | --- |
+| Organisasi | `Dummy_Organisasi` |
+| Period start | `2026-08-17 00:00:00` |
+| Period end | `2026-08-18 00:00:00` |
+| Timezone | `UTC` |
+| Delay threshold | `3600` detik |
+
+Format tanggal harus `YYYY-MM-DD HH:MM:SS`. Query dummy dapat langsung
+di-format dan dijalankan, tetapi kemungkinan menghasilkan `NO PARSED EVENTS`
+karena `Dummy_Organisasi` tidak mewakili customer nyata.
+
+Untuk penggunaan berwenang, ubah nilai dummy hanya pada salinan lokal yang
+tidak dilacak Git, pilih `deviceTime` melalui **Attributes used** bila perlu,
+lalu copy-paste seluruh query. Jangan commit salinan atau hasil aktualnya.
+
 ## Alur Perhitungan
 
 ```mermaid

@@ -38,6 +38,30 @@ yang melanggar aturan tersebut sebagai tidak valid, tetapi input tetap harus
 divalidasi sebelum eksekusi. Nilai string yang mengandung tanda petik tunggal
 harus ditangani dengan aman sebelum ditempelkan ke Query Console.
 
+## Contoh Dummy Siap Copy-Paste
+
+Buka [query.example.sql.tmpl](query.example.sql.tmpl), lalu salin seluruh isinya
+ke **Analytics > Advanced Search > Query Console**. Contoh tersebut sudah berisi:
+
+| Parameter | Nilai dummy |
+| --- | --- |
+| Organisasi | `Dummy_Organisasi` |
+| ID kolektor | `999999` |
+| Nama kolektor | `Dummy_Kolektor` |
+| Period start | `2026-08-17 00:00:00` |
+| Period end | `2026-08-18 00:00:00` |
+| Timezone | `UTC` |
+| Heartbeat window | `600` detik |
+| Target | `90` persen |
+
+ID kolektor wajib numerik. Jangan mengganti `999999` dengan
+`ID_Dummy_Kolektor`. Penulisan tanggal juga harus `2026-08-17`, bukan
+`17-08-2026`. Query dummy dapat langsung di-format dan dijalankan, tetapi hasil
+kosong adalah wajar karena organisasi dan kolektornya tidak nyata.
+
+Untuk memperoleh hasil deployment, ubah dummy hanya pada salinan lokal yang
+tidak dilacak Git, lalu copy-paste seluruh query. Jangan commit salinan tersebut.
+
 ## Alur Perhitungan
 
 ```mermaid

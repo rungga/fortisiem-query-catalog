@@ -46,6 +46,31 @@ Gunakan format `{{UPPER_SNAKE_CASE}}`.
 Placeholder string tetap berada di dalam tanda petik SQL. Placeholder numerik
 tidak diberi tanda petik kecuali fungsi konversi query memang mengharuskannya.
 
+## Data Dummy Standar
+
+Template kanonik tetap menggunakan placeholder. Berkas
+`query.example.sql.tmpl` mengganti placeholder dengan nilai dummy standar:
+
+| Parameter | Nilai dummy |
+| --- | --- |
+| `CUSTOMER_NAME` | `Dummy_Organisasi` |
+| `COLLECTOR_NAME` | `Dummy_Kolektor` |
+| `COLLECTOR_ID` | `999999` |
+| `PERIOD_START` | `2026-08-17 00:00:00` |
+| `PERIOD_END` | `2026-08-18 00:00:00` |
+| `TIMEZONE` | `UTC` |
+| `HEARTBEAT_WINDOW_SECONDS` | `600` |
+| `TARGET_PERCENT` | `90` |
+| `DELAY_THRESHOLD_SECONDS` | `3600` |
+
+Nilai dummy tidak boleh berasal dari transformasi nama atau ID sebenarnya.
+`COLLECTOR_ID` bertipe numerik, sehingga gunakan `999999`, bukan string
+`ID_Dummy_Kolektor`. Format tanggal ClickHouse adalah
+`YYYY-MM-DD HH:MM:SS`, bukan `DD-MM-YYYY HH:MM:SS`.
+
+Panduan penggunaan lengkap tersedia di
+[DUMMY_DATA_GUIDE.md](DUMMY_DATA_GUIDE.md).
+
 ## Alur Publikasi
 
 1. Simpan query asli hanya di lokasi privat yang berwenang.
@@ -54,10 +79,11 @@ tidak diberi tanda petik kecuali fungsi konversi query memang mengharuskannya.
 4. Ganti nilai dengan placeholder standar.
 5. Hapus komentar, judul, dan nama berkas yang masih mengandung konteks asli.
 6. Tinjau query sebagai penyerang yang mencoba menebak sumbernya.
-7. Masukkan hanya versi tersanitasi ke folder `queries/`.
-8. Jalankan validator lokal.
-9. Periksa diff dan riwayat Git sebelum push.
-10. Minta review manusia lain untuk query berisiko tinggi.
+7. Masukkan hanya template tersanitasi dan contoh dummy ke folder `queries/`.
+8. Pastikan contoh dummy tidak memuat placeholder atau nilai sebenarnya.
+9. Jalankan validator lokal.
+10. Periksa diff dan riwayat Git sebelum push.
+11. Minta review manusia lain untuk query berisiko tinggi.
 
 Daftar nama customer sebenarnya tidak boleh disimpan sebagai denylist di
 repositori publik. Pemeriksaan nama internal tambahan dapat dijalankan secara

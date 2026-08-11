@@ -28,6 +28,8 @@ lingkungan nyata.
       nyata.
 - [ ] Tidak ada event mentah, hasil query, log, export, screenshot, atau capture.
 - [ ] Semua nilai deployment menggunakan placeholder yang dideklarasikan.
+- [ ] `query.example.sql.tmpl` hanya berisi data dummy standar, tidak memiliki
+      placeholder, dan sinkron dengan template kanonik.
 - [ ] Saya meninjau judul, nama folder, metadata, dokumentasi, diff, dan commit
       sebelumnya untuk konteks sensitif.
 
@@ -35,6 +37,7 @@ lingkungan nyata.
 
 - [ ] Tujuan dan setiap blok logika dijelaskan.
 - [ ] Parameter, formula, dan kolom hasil dijelaskan.
+- [ ] Langkah copy-paste FortiSIEM dan arti data dummy dijelaskan.
 - [ ] Asumsi, keterbatasan, performa, serta skenario validasi dijelaskan.
 - [ ] Referensi resmi dicantumkan sebagai tautan dengan versi dan tanggal akses.
 - [ ] Sumber judul dan status review manusia dicatat dengan benar.
