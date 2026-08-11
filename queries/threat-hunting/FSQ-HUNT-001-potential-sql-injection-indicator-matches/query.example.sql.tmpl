@@ -1,0 +1,90 @@
+-- CONTOH DUMMY SIAP COPY-PASTE KE FORTISIEM.
+-- Nilai dummy kemungkinan tidak menghasilkan data. Ganti hanya pada salinan lokal.
+-- Jangan commit nilai deployment atau hasil query sebenarnya.
+
+WITH
+    toDateTime(
+        '2026-08-17 00:00:00',
+        'UTC'
+    ) AS period_start,
+
+    toDateTime(
+        '2026-08-18 00:00:00',
+        'UTC'
+    ) AS period_end,
+
+    'Dummy_Organisasi' AS target_customer,
+
+    [
+        'union select',
+        'union all select',
+        'union%20select',
+        'information_schema',
+        '@@version',
+        'sysdatabases',
+        'sleep(',
+        'benchmark(',
+        'waitfor delay',
+        'pg_sleep',
+        'xp_cmdshell',
+        'concat(0x',
+        '/*!',
+        'select%20from',
+        ' and 1=1',
+        'extractvalue(',
+        'updatexml('
+    ] AS sql_injection_indicators,
+
+    candidate_events AS
+    (
+        SELECT
+            phRecvTime AS receive_time,
+            toString(srcIpAddr) AS source_ip,
+            toString(destIpAddr) AS destination_ip,
+            eventType AS event_type,
+            reptDevName AS reporting_device,
+            ifNull(rawEventMsg, '') AS raw_message
+        FROM fsiem.events
+        WHERE
+            period_end > period_start
+            AND phRecvTime >= period_start
+            AND phRecvTime < period_end
+            AND customer = target_customer
+            AND phEventCategory = 0
+            AND notEmpty(ifNull(rawEventMsg, ''))
+            AND multiSearchAnyCaseInsensitive(
+                ifNull(rawEventMsg, ''),
+                sql_injection_indicators
+            ) = 1
+    ),
+
+    matched_events AS
+    (
+        SELECT
+            receive_time,
+            source_ip,
+            destination_ip,
+            event_type,
+            reporting_device,
+            arrayFilter(
+                indicator -> positionCaseInsensitive(
+                    raw_message,
+                    indicator
+                ) > 0,
+                sql_injection_indicators
+            ) AS matched_indicators
+        FROM candidate_events
+    )
+
+SELECT
+    receive_time AS `Receive Time`,
+    source_ip AS `Source IP`,
+    destination_ip AS `Destination IP`,
+    event_type AS `Event Type`,
+    reporting_device AS `Reporting Device`,
+    matched_indicators AS `Matched Indicators`,
+    length(matched_indicators) AS `Matched Indicator Count`
+FROM matched_events
+WHERE notEmpty(matched_indicators)
+ORDER BY receive_time DESC
+LIMIT 100
