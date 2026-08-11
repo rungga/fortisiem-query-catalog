@@ -1,0 +1,98 @@
+{
+  "$schema": "../../../schema/query.schema.json",
+  "id": "FSQ-DQ-001",
+  "slug": "parsed-event-source-timestamp-coverage-and-ingestion-delay-anomalies",
+  "title": {
+    "en": "Parsed Event Source-Timestamp Coverage and Ingestion Delay Anomalies",
+    "id": "Cakupan Timestamp Sumber dan Anomali Delay Ingesti pada Event Terurai",
+    "source": "ai-assisted",
+    "reviewed_by_maintainer": true
+  },
+  "origin": {
+    "kind": "original-work",
+    "author": "Rungga",
+    "third_party_code_included": false
+  },
+  "platform": "FortiSIEM",
+  "query_type": "advanced-search",
+  "dialect": "ClickHouse SQL",
+  "category": "data-quality",
+  "scope": "single-customer",
+  "summary": "Measures source-timestamp availability and counts negative or excessive source-to-receive delay among successfully parsed events.",
+  "parameters": [
+    {
+      "name": "PERIOD_START",
+      "type": "datetime-string",
+      "description": "Inclusive start of the observation period."
+    },
+    {
+      "name": "PERIOD_END",
+      "type": "datetime-string",
+      "description": "Exclusive end of the observation period."
+    },
+    {
+      "name": "TIMEZONE",
+      "type": "iana-timezone-string",
+      "description": "IANA timezone used to interpret both period boundaries."
+    },
+    {
+      "name": "CUSTOMER_NAME",
+      "type": "string",
+      "description": "Organization value used by the target FortiSIEM deployment."
+    },
+    {
+      "name": "DELAY_THRESHOLD_SECONDS",
+      "type": "positive-integer",
+      "description": "Maximum accepted source-to-receive delay before an event is counted as over threshold."
+    }
+  ],
+  "privacy": {
+    "status": "sanitized",
+    "reviewed_on": "2026-08-11",
+    "removed_categories": [
+      "organization-name",
+      "customer-name",
+      "operational-time-range",
+      "timezone",
+      "policy-threshold"
+    ]
+  },
+  "compatibility": {
+    "documentation_reference_version": "7.5.1",
+    "tested_versions": [],
+    "execution_validation": "not-independently-executed"
+  },
+  "references": [
+    {
+      "title": "Creating a New Advanced Search",
+      "publisher": "Fortinet",
+      "url": "https://docs.fortinet.com/document/fortisiem/7.5.1/user-guide/431900/creating-a-new-advanced-search",
+      "accessed_on": "2026-08-11"
+    },
+    {
+      "title": "Working with Event Attributes",
+      "publisher": "Fortinet",
+      "url": "https://docs.fortinet.com/document/fortisiem/7.5.1/user-guide/042752/working-with-event-attributes",
+      "accessed_on": "2026-08-11"
+    },
+    {
+      "title": "ClickHouse Query Optimization Guidelines",
+      "publisher": "Fortinet",
+      "url": "https://docs.fortinet.com/document/fortisiem/7.5.1/user-guide/953058/clickhouse-query-optimization-guidelines",
+      "accessed_on": "2026-08-11"
+    },
+    {
+      "title": "Array Functions",
+      "publisher": "ClickHouse",
+      "url": "https://clickhouse.com/docs/sql-reference/functions/array-functions#indexof",
+      "accessed_on": "2026-08-11"
+    },
+    {
+      "title": "Functions for Working with Dates and Times",
+      "publisher": "ClickHouse",
+      "url": "https://clickhouse.com/docs/sql-reference/functions/date-time-functions#dateDiff",
+      "accessed_on": "2026-08-11"
+    }
+  ],
+  "license": "MIT"
+}

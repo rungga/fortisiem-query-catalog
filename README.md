@@ -19,6 +19,7 @@ Lihat [INDEX.md](INDEX.md) untuk seluruh query.
 | ID | Query | Fokus |
 | --- | --- | --- |
 | [FSQ-AVAIL-001](queries/availability/FSQ-AVAIL-001-observed-single-collector-uptime/) | Uptime Teramati Satu Kolektor dari Heartbeat Sistem | Availability satu kolektor |
+| [FSQ-DQ-001](queries/data-quality/FSQ-DQ-001-parsed-event-source-timestamp-coverage-and-ingestion-delay-anomalies/) | Cakupan Timestamp Sumber dan Anomali Delay Ingesti pada Event Terurai | Coverage timestamp dan anomali delay ingestion |
 
 ## Isi Setiap Query
 

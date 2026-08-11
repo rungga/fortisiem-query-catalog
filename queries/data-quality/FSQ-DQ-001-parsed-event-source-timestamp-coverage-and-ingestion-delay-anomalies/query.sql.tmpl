@@ -1,0 +1,112 @@
+WITH
+    toDateTime(
+        '{{PERIOD_START}}',
+        '{{TIMEZONE}}'
+    ) AS period_start,
+
+    toDateTime(
+        '{{PERIOD_END}}',
+        '{{TIMEZONE}}'
+    ) AS period_end,
+
+    '{{CUSTOMER_NAME}}' AS target_customer,
+
+    toInt64(
+        {{DELAY_THRESHOLD_SECONDS}}
+    ) AS delay_threshold_seconds,
+
+    extracted_events AS
+    (
+        SELECT
+            indexOf(
+                metrics_datetime.name,
+                'deviceTime'
+            ) AS source_time_index,
+            arrayElementOrNull(
+                metrics_datetime.value,
+                source_time_index
+            ) AS source_time,
+            phRecvTime AS receive_time
+        FROM fsiem.events
+        WHERE
+            phRecvTime >= period_start
+            AND phRecvTime < period_end
+            AND customer = target_customer
+            AND eventParsedOk = 1
+    ),
+
+    measured_events AS
+    (
+        SELECT
+            source_time_index,
+            source_time,
+            dateDiff(
+                'second',
+                source_time,
+                receive_time
+            ) AS delay_seconds
+        FROM extracted_events
+    ),
+
+    statistics AS
+    (
+        SELECT
+            count() AS parsed_event_count,
+            countIf(
+                source_time_index > 0
+            ) AS source_timestamp_attribute_count,
+            countIf(
+                source_time IS NOT NULL
+            ) AS usable_source_timestamp_count,
+            countIf(
+                source_time_index = 0
+            ) AS missing_source_timestamp_count,
+            countIf(
+                source_time_index > 0
+                AND source_time IS NULL
+            ) AS unusable_source_timestamp_count,
+            countIf(
+                source_time IS NOT NULL
+                AND
+                delay_seconds < 0
+            ) AS negative_delay_count,
+            countIf(
+                source_time IS NOT NULL
+                AND
+                delay_seconds > delay_threshold_seconds
+            ) AS over_threshold_delay_count
+        FROM measured_events
+    )
+
+SELECT
+    parsed_event_count AS `Parsed Events`,
+    source_timestamp_attribute_count
+        AS `Source Timestamp Attribute Events`,
+    usable_source_timestamp_count
+        AS `Usable Source Timestamp Events`,
+    if(
+        parsed_event_count > 0,
+        round(
+            100.0 * toFloat64(usable_source_timestamp_count)
+            / toFloat64(parsed_event_count),
+            4
+        ),
+        NULL
+    ) AS `Usable Source Timestamp Percent`,
+    missing_source_timestamp_count
+        AS `Missing Source Timestamp Events`,
+    unusable_source_timestamp_count
+        AS `Unusable Source Timestamp Events`,
+    negative_delay_count AS `Negative Delay Events`,
+    over_threshold_delay_count AS `Delay Over Threshold Events`,
+    multiIf(
+        period_end <= period_start,
+        'INVALID PERIOD',
+        delay_threshold_seconds <= 0,
+        'INVALID DELAY THRESHOLD',
+        parsed_event_count = 0,
+        'NO PARSED EVENTS',
+        'OK'
+    ) AS `Query Status`
+FROM statistics
+LIMIT 1
