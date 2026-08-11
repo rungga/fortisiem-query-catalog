@@ -1,0 +1,4 @@
+* text=auto eol=lf
+
+*.sql.tmpl linguist-language=SQL
+LICENSE linguist-documentation

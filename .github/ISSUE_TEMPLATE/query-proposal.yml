@@ -1,0 +1,61 @@
+name: Query proposal
+description: Propose a sanitized use case without posting SQL or environment data
+title: "[Query proposal] "
+labels:
+  - query-proposal
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not paste SQL, query results, logs, screenshots, customer names, hostnames, IP addresses, IDs, or other environment data into this public issue.
+
+  - type: textarea
+    id: use-case
+    attributes:
+      label: Sanitized use case
+      description: Describe the question the query should answer using generic terms only.
+      placeholder: Measure observed availability for one generic collector from heartbeat continuity.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      options:
+        - Availability
+        - Detection
+        - Investigation
+        - Performance
+        - Reporting
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: fortisiem-version
+    attributes:
+      label: FortiSIEM version
+      description: Provide only the product version, not deployment details.
+      placeholder: Product version or unknown
+    validations:
+      required: true
+
+  - type: textarea
+    id: references
+    attributes:
+      label: Official references
+      description: Add links to relevant official documentation without copying its content.
+      placeholder: https://docs.fortinet.com/...
+
+  - type: checkboxes
+    id: declarations
+    attributes:
+      label: Declarations
+      options:
+        - label: I have not included SQL, results, logs, screenshots, or environment identifiers.
+          required: true
+        - label: The use case is generic and safe to discuss publicly.
+          required: true
+        - label: I understand that implementation must be tested and reviewed before use.
+          required: true

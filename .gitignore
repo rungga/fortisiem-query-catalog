@@ -1,0 +1,43 @@
+# Operating system and editor files
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Secrets and local configuration
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+secrets/
+private/
+
+# Rendered or private query work
+queries/**/*.sql
+*.local.sql
+*.rendered.sql
+scratch/
+
+# Query results and raw evidence
+results/
+exports/
+*.csv
+*.jsonl
+*.log
+*.pcap
+*.pcapng
+*.xlsx
+*.zip
+
+# Tool caches
+.cache/
+.pytest_cache/
+.ruff_cache/

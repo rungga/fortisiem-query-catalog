@@ -1,0 +1,171 @@
+WITH
+    toDateTime(
+        '{{PERIOD_START}}',
+        '{{TIMEZONE}}'
+    ) AS period_start,
+
+    toDateTime(
+        '{{PERIOD_END}}',
+        '{{TIMEZONE}}'
+    ) AS period_end,
+
+    '{{CUSTOMER_NAME}}' AS target_customer,
+
+    toUInt64(
+        {{COLLECTOR_ID}}
+    ) AS target_collector_id,
+
+    '{{COLLECTOR_NAME}}' AS target_collector_name,
+
+    toInt64(
+        {{HEARTBEAT_WINDOW_SECONDS}}
+    ) AS heartbeat_window_seconds,
+
+    toFloat64(
+        {{TARGET_PERCENT}}
+    ) AS target_percent,
+
+    toInt64(
+        dateDiff('second', period_start, period_end)
+    ) AS total_seconds,
+
+    nullIf(
+        total_seconds,
+        toInt64(0)
+    ) AS nonzero_total_seconds,
+
+    heartbeat_times AS
+    (
+        SELECT DISTINCT
+            phRecvTime AS heartbeat_time
+        FROM fsiem.events
+        WHERE
+            phRecvTime >= subtractSeconds(
+                period_start,
+                heartbeat_window_seconds
+            )
+            AND phRecvTime < period_end
+            AND customer = target_customer
+            AND collectorId = target_collector_id
+            AND reptDevName = target_collector_name
+            AND startsWith(eventType, 'PH_SYSTEM_')
+    ),
+
+    ordered_heartbeats AS
+    (
+        SELECT
+            heartbeat_time,
+            leadInFrame(
+                heartbeat_time,
+                1,
+                period_end
+            ) OVER
+            (
+                ORDER BY heartbeat_time
+                ROWS BETWEEN UNBOUNDED PRECEDING
+                AND UNBOUNDED FOLLOWING
+            ) AS next_heartbeat
+        FROM heartbeat_times
+    ),
+
+    measured_intervals AS
+    (
+        SELECT
+            heartbeat_time,
+            next_heartbeat,
+            greatest(
+                heartbeat_time,
+                period_start
+            ) AS interval_start,
+            least(
+                next_heartbeat,
+                addSeconds(
+                    heartbeat_time,
+                    heartbeat_window_seconds
+                ),
+                period_end
+            ) AS interval_end,
+            toInt64(
+                dateDiff(
+                    'second',
+                    heartbeat_time,
+                    next_heartbeat
+                )
+            ) AS heartbeat_gap_seconds
+        FROM ordered_heartbeats
+        WHERE
+            heartbeat_time < period_end
+            AND next_heartbeat > period_start
+    ),
+
+    statistics AS
+    (
+        SELECT
+            minOrNull(heartbeat_time) AS first_heartbeat,
+            maxOrNull(heartbeat_time) AS last_heartbeat,
+            count() AS heartbeat_count,
+            maxOrNull(heartbeat_gap_seconds) AS maximum_gap_seconds,
+            countIf(
+                heartbeat_gap_seconds > heartbeat_window_seconds
+            ) AS gaps_over_window,
+            sum(
+                greatest(
+                    toInt64(0),
+                    toInt64(
+                        dateDiff(
+                            'second',
+                            interval_start,
+                            interval_end
+                        )
+                    )
+                )
+            ) AS up_seconds
+        FROM measured_intervals
+    )
+
+SELECT
+    target_collector_name AS `Collector`,
+    toString(target_collector_id) AS `Collector ID`,
+    first_heartbeat AS `First Heartbeat`,
+    last_heartbeat AS `Last Heartbeat`,
+    heartbeat_count AS `Heartbeat Count`,
+    round(
+        toFloat64(maximum_gap_seconds) / 60.0,
+        2
+    ) AS `Maximum Gap Minutes`,
+    gaps_over_window AS `Gaps Over Heartbeat Window`,
+    round(
+        toFloat64(up_seconds) / 3600.0,
+        2
+    ) AS `Observed Up Hours`,
+    if(
+        total_seconds > 0,
+        round(
+            toFloat64(total_seconds - up_seconds) / 3600.0,
+            2
+        ),
+        NULL
+    ) AS `Observed Down Hours`,
+    if(
+        total_seconds > 0,
+        round(
+            100.0 * toFloat64(up_seconds)
+            / toFloat64(nonzero_total_seconds),
+            4
+        ),
+        NULL
+    ) AS `Observed System Uptime Percent`,
+    multiIf(
+        total_seconds <= 0,
+        'INVALID PERIOD',
+        heartbeat_window_seconds <= 0,
+        'INVALID HEARTBEAT WINDOW',
+        target_percent < 0 OR target_percent > 100,
+        'INVALID TARGET',
+        100.0 * toFloat64(up_seconds)
+            / toFloat64(nonzero_total_seconds) >= target_percent,
+        'MEETS TARGET',
+        'DOES NOT MEET TARGET'
+    ) AS `Target Status`
+FROM statistics
+LIMIT 1

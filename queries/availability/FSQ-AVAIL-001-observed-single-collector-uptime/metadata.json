@@ -1,0 +1,116 @@
+{
+  "$schema": "../../../schema/query.schema.json",
+  "id": "FSQ-AVAIL-001",
+  "slug": "observed-single-collector-uptime",
+  "title": {
+    "en": "Observed Single-Collector Uptime from System Heartbeats",
+    "id": "Uptime Teramati Satu Kolektor dari Heartbeat Sistem",
+    "source": "ai-assisted",
+    "reviewed_by_maintainer": true
+  },
+  "origin": {
+    "kind": "original-work",
+    "author": "Rungga",
+    "third_party_code_included": false
+  },
+  "platform": "FortiSIEM",
+  "query_type": "advanced-search",
+  "dialect": "ClickHouse SQL",
+  "category": "availability",
+  "scope": "single-collector",
+  "summary": "Estimates observed collector availability from system heartbeat intervals within a bounded reporting period.",
+  "parameters": [
+    {
+      "name": "PERIOD_START",
+      "type": "datetime-string",
+      "description": "Inclusive start of the observation period."
+    },
+    {
+      "name": "PERIOD_END",
+      "type": "datetime-string",
+      "description": "Exclusive end of the observation period."
+    },
+    {
+      "name": "TIMEZONE",
+      "type": "iana-timezone-string",
+      "description": "IANA timezone used to interpret both period boundaries."
+    },
+    {
+      "name": "CUSTOMER_NAME",
+      "type": "string",
+      "description": "Organization value used by the target FortiSIEM deployment."
+    },
+    {
+      "name": "COLLECTOR_ID",
+      "type": "unsigned-integer",
+      "description": "Numeric identifier of the collector being measured."
+    },
+    {
+      "name": "COLLECTOR_NAME",
+      "type": "string",
+      "description": "Reporting device name of the collector being measured."
+    },
+    {
+      "name": "HEARTBEAT_WINDOW_SECONDS",
+      "type": "positive-integer",
+      "description": "Maximum duration credited as observed uptime after each heartbeat."
+    },
+    {
+      "name": "TARGET_PERCENT",
+      "type": "percentage-number",
+      "description": "Availability target used only to derive the final status label."
+    }
+  ],
+  "privacy": {
+    "status": "sanitized",
+    "reviewed_on": "2026-08-11",
+    "removed_categories": [
+      "organization-name",
+      "customer-name",
+      "collector-id",
+      "collector-name",
+      "environment-code",
+      "operational-time-range",
+      "timezone",
+      "policy-threshold"
+    ]
+  },
+  "compatibility": {
+    "documentation_reference_version": "7.5.1",
+    "tested_versions": [],
+    "execution_validation": "not-independently-executed"
+  },
+  "references": [
+    {
+      "title": "FortiSIEM Advanced Search Overview",
+      "publisher": "Fortinet",
+      "url": "https://docs.fortinet.com/document/fortisiem/7.5.1/user-guide/704751/overview",
+      "accessed_on": "2026-08-11"
+    },
+    {
+      "title": "Creating a New Advanced Search",
+      "publisher": "Fortinet",
+      "url": "https://docs.fortinet.com/document/fortisiem/7.5.1/user-guide/431900/creating-a-new-advanced-search",
+      "accessed_on": "2026-08-11"
+    },
+    {
+      "title": "ClickHouse Index Design",
+      "publisher": "Fortinet",
+      "url": "https://docs.fortinet.com/document/fortisiem/7.5.1/user-guide/672848/clickhouse-index-design",
+      "accessed_on": "2026-08-11"
+    },
+    {
+      "title": "ClickHouse Query Optimization Guidelines",
+      "publisher": "Fortinet",
+      "url": "https://docs.fortinet.com/document/fortisiem/7.5.1/user-guide/953058/clickhouse-query-optimization-guidelines",
+      "accessed_on": "2026-08-11"
+    },
+    {
+      "title": "Viewing Collector Health",
+      "publisher": "Fortinet",
+      "url": "https://docs.fortinet.com/document/fortisiem/7.5.1/user-guide/072405/viewing-collector-health",
+      "accessed_on": "2026-08-11"
+    }
+  ],
+  "license": "MIT"
+}
