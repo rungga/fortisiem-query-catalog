@@ -1,0 +1,107 @@
+-- CONTOH DUMMY SIAP COPY-PASTE KE FORTISIEM.
+-- Nilai dummy kemungkinan tidak menghasilkan data. Ganti hanya pada salinan lokal.
+-- Jangan commit nilai deployment atau hasil query sebenarnya.
+
+WITH
+    toDateTime(
+        '2026-08-17 00:00:00',
+        'UTC'
+    ) AS period_start,
+
+    toDateTime(
+        '2026-08-18 00:00:00',
+        'UTC'
+    ) AS period_end,
+
+    'Dummy_Organisasi' AS target_customer,
+
+    [
+        '/etc/shadow',
+        '/etc/gshadow'
+    ] AS sensitive_paths,
+
+    [
+        'wazuh',
+        'ossec',
+        'check_mk',
+        'comm="stat"',
+        'a0="stat"',
+        'comm="passwd"',
+        'comm="sshd"',
+        'comm="sudo"',
+        'comm="unix_chkpwd"',
+        'comm="chage"',
+        'comm="cron"'
+    ] AS known_context_markers,
+
+    candidate_events AS
+    (
+        SELECT
+            phRecvTime AS receive_time,
+            ifNull(reptDevName, '') AS reporting_device,
+            ifNull(
+                toString(reptDevIpAddrV4),
+                ''
+            ) AS reporting_device_ip,
+            eventType AS event_type,
+            ifNull(rawEventMsg, '') AS raw_message
+        FROM fsiem.events
+        WHERE
+            period_end > period_start
+            AND phRecvTime >= period_start
+            AND phRecvTime < period_end
+            AND customer = target_customer
+            AND phEventCategory = 0
+            AND startsWith(ifNull(eventType, ''), 'LINUX_')
+            AND notEmpty(ifNull(rawEventMsg, ''))
+            AND multiSearchAnyCaseInsensitive(
+                ifNull(rawEventMsg, ''),
+                sensitive_paths
+            ) = 1
+    ),
+
+    matched_events AS
+    (
+        SELECT
+            receive_time,
+            reporting_device,
+            reporting_device_ip,
+            event_type,
+            extract(
+                raw_message,
+                'comm="([^"]+)"'
+            ) AS process_name,
+            arrayFilter(
+                path -> positionCaseInsensitive(
+                    raw_message,
+                    path
+                ) > 0,
+                sensitive_paths
+            ) AS matched_paths,
+            arrayFilter(
+                marker -> positionCaseInsensitive(
+                    raw_message,
+                    marker
+                ) > 0,
+                known_context_markers
+            ) AS matched_context_markers
+        FROM candidate_events
+    )
+
+SELECT
+    receive_time AS `Receive Time`,
+    reporting_device AS `Reporting Device`,
+    reporting_device_ip AS `Reporting Device IP`,
+    event_type AS `Event Type`,
+    process_name AS `Process Name`,
+    matched_paths AS `Matched Sensitive Paths`,
+    matched_context_markers AS `Matched Context Markers`,
+    if(
+        empty(matched_context_markers),
+        'NO LISTED CONTEXT MARKER - REVIEW REQUIRED',
+        'LISTED CONTEXT MARKER PRESENT - REVIEW REQUIRED'
+    ) AS `Context Classification`
+FROM matched_events
+WHERE notEmpty(matched_paths)
+ORDER BY receive_time DESC
+LIMIT 100
