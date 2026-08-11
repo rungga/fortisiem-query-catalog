@@ -1,0 +1,198 @@
+-- CONTOH DUMMY SIAP COPY-PASTE KE FORTISIEM.
+-- Nilai dummy kemungkinan tidak menghasilkan data. Ganti hanya pada salinan lokal.
+-- Jangan commit nilai deployment atau hasil query sebenarnya.
+
+WITH
+    toUInt64(
+        30
+    ) AS lookback_days,
+
+    now() - toIntervalDay(lookback_days) AS period_start,
+    now() AS period_end,
+
+    [
+        'nmap',
+        'nmap.exe',
+        'zenmap',
+        'zenmap.exe',
+        'nping',
+        'nping.exe'
+    ] AS nmap_process_names,
+
+    [
+        'nmap',
+        'nmap.exe',
+        'zenmap',
+        'zenmap.exe',
+        'nping',
+        'nping.exe'
+    ] AS nmap_indicators,
+
+    extracted_events AS
+    (
+        SELECT
+            phCustId AS organization_id,
+            ifNull(customer, '') AS organization_name,
+            phRecvTime AS receive_time,
+            eventType AS event_type,
+            ifNull(reptDevName, '') AS reporting_device,
+
+            ifNull(
+                toString(reptDevIpAddrV4),
+                ''
+            ) AS reporting_ip,
+
+            ifNull(
+                arrayElementOrNull(
+                    metrics_string.value,
+                    indexOf(metrics_string.name, 'hostName')
+                ),
+                ''
+            ) AS host_name,
+
+            ifNull(
+                toString(
+                    arrayElementOrNull(
+                        metrics_ip.value,
+                        indexOf(metrics_ip.name, 'hostIpAddr')
+                    )
+                ),
+                ''
+            ) AS host_ip,
+
+            ifNull(
+                arrayElementOrNull(
+                    metrics_string.value,
+                    indexOf(metrics_string.name, 'user')
+                ),
+                ''
+            ) AS process_user,
+
+            ifNull(
+                arrayElementOrNull(
+                    metrics_string.value,
+                    indexOf(metrics_string.name, 'shortProcName')
+                ),
+                ''
+            ) AS process_name,
+
+            ifNull(
+                arrayElementOrNull(
+                    metrics_string.value,
+                    indexOf(metrics_string.name, 'procName')
+                ),
+                ''
+            ) AS process_path,
+
+            ifNull(
+                arrayElementOrNull(
+                    metrics_string.value,
+                    indexOf(metrics_string.name, 'parentProcName')
+                ),
+                ''
+            ) AS parent_process_path,
+
+            ifNull(
+                arrayElementOrNull(
+                    metrics_string.value,
+                    indexOf(metrics_string.name, 'command')
+                ),
+                ''
+            ) AS command_line,
+
+            ifNull(
+                rawEventMsg,
+                ''
+            ) AS raw_message
+        FROM fsiem.events
+        WHERE
+            lookback_days > 0
+            AND phRecvTime >= period_start
+            AND phRecvTime < period_end
+            AND phEventCategory = 0
+            AND eventType IN
+            (
+                'Win-Sysmon-1-Create-Process',
+                'LINUX_PROCESS_EXEC'
+            )
+    ),
+
+    evaluated_events AS
+    (
+        SELECT
+            *,
+            has(
+                nmap_process_names,
+                lowerUTF8(process_name)
+            ) AS process_name_match,
+
+            arrayFilter(
+                indicator -> positionCaseInsensitive(
+                    process_path,
+                    indicator
+                ) > 0,
+                nmap_indicators
+            ) AS path_matches,
+
+            arrayFilter(
+                indicator -> positionCaseInsensitive(
+                    command_line,
+                    indicator
+                ) > 0,
+                nmap_indicators
+            ) AS command_matches,
+
+            arrayFilter(
+                indicator -> positionCaseInsensitive(
+                    raw_message,
+                    indicator
+                ) > 0,
+                nmap_indicators
+            ) AS raw_message_matches
+        FROM extracted_events
+    )
+
+SELECT
+    organization_id AS `Organization ID`,
+    organization_name AS `Organization`,
+
+    if(
+        notEmpty(host_name),
+        host_name,
+        reporting_device
+    ) AS `Asset Name`,
+
+    if(
+        notEmpty(host_ip),
+        host_ip,
+        reporting_ip
+    ) AS `Asset IP`,
+
+    receive_time AS `Receive Time`,
+    event_type AS `Event Type`,
+    process_user AS `User`,
+    process_name AS `Process Name`,
+    process_path AS `Process Path`,
+    parent_process_path AS `Parent Process Path`,
+    command_line AS `Command Line`,
+    path_matches AS `Path Matches`,
+    command_matches AS `Command Matches`,
+    raw_message_matches AS `Raw Event Matches`,
+
+    concat(
+        if(process_name_match = 1, 'PROCESS_NAME; ', ''),
+        if(notEmpty(path_matches), 'PROCESS_PATH; ', ''),
+        if(notEmpty(command_matches), 'COMMAND_LINE; ', ''),
+        if(notEmpty(raw_message_matches), 'RAW_EVENT_FALLBACK', '')
+    ) AS `Detection Basis`,
+
+    reporting_device AS `Reporting Device`,
+    reporting_ip AS `Reporting IP`
+FROM evaluated_events
+WHERE
+    process_name_match = 1
+    OR notEmpty(path_matches)
+    OR notEmpty(command_matches)
+    OR notEmpty(raw_message_matches)
+ORDER BY receive_time DESC
+LIMIT 300

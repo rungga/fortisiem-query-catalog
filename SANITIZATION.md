@@ -59,6 +59,7 @@ Template kanonik tetap menggunakan placeholder. Berkas
 | `PERIOD_START` | `2026-08-17 00:00:00` |
 | `PERIOD_END` | `2026-08-18 00:00:00` |
 | `TIMEZONE` | `UTC` |
+| `LOOKBACK_DAYS` | `30` |
 | `HEARTBEAT_WINDOW_SECONDS` | `600` |
 | `TARGET_PERCENT` | `90` |
 | `DELAY_THRESHOLD_SECONDS` | `3600` |

@@ -25,6 +25,7 @@ Lihat [INDEX.md](INDEX.md) untuk seluruh query.
 | [FSQ-DQ-001](queries/data-quality/FSQ-DQ-001-parsed-event-source-timestamp-coverage-and-ingestion-delay-anomalies/) | Cakupan Timestamp Sumber dan Anomali Delay Ingesti pada Event Terurai | Coverage timestamp dan anomali delay ingestion |
 | [FSQ-HUNT-001](queries/threat-hunting/FSQ-HUNT-001-potential-sql-injection-indicator-matches/) | Kecocokan Indikator Potensi SQL Injection pada Pesan Event Eksternal | Triage substring SQL injection pada raw event |
 | [FSQ-HUNT-002](queries/threat-hunting/FSQ-HUNT-002-potential-linux-shadow-file-reference-matches/) | Kecocokan Potensi Referensi File Kredensial Shadow Linux dengan Konteks Proses | Triage referensi shadow file tanpa membuang process context |
+| [FSQ-HUNT-003](queries/threat-hunting/FSQ-HUNT-003-potential-nmap-execution-indicator-matches/) | Kecocokan Indikator Potensi Eksekusi Nmap pada Aset Seluruh Organisasi | Triage Nmap/Zenmap/Nping pada process creation telemetry |
 
 ## Isi Setiap Query
 

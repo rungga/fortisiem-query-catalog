@@ -1,0 +1,92 @@
+{
+  "$schema": "../../../schema/query.schema.json",
+  "id": "FSQ-HUNT-003",
+  "slug": "potential-nmap-execution-indicator-matches",
+  "title": {
+    "en": "Potential Nmap Execution Indicator Matches Across Accessible Organizations",
+    "id": "Kecocokan Indikator Potensi Eksekusi Nmap pada Aset Seluruh Organisasi",
+    "source": "ai-assisted",
+    "reviewed_by_maintainer": true
+  },
+  "origin": {
+    "kind": "original-work",
+    "author": "Rungga",
+    "third_party_code_included": false
+  },
+  "platform": "FortiSIEM",
+  "query_type": "advanced-search",
+  "dialect": "ClickHouse SQL",
+  "category": "threat-hunting",
+  "scope": "all-accessible-organizations",
+  "summary": "Finds endpoint process-creation events containing Nmap, Zenmap, or Nping indicators across organizations visible to the FortiSIEM user.",
+  "parameters": [
+    {
+      "name": "LOOKBACK_DAYS",
+      "type": "positive-integer",
+      "description": "Number of complete days searched backward from query execution time."
+    }
+  ],
+  "privacy": {
+    "status": "sanitized",
+    "reviewed_on": "2026-08-12",
+    "removed_categories": [
+      "organization-name",
+      "customer-name",
+      "asset-name",
+      "asset-ip",
+      "user-name",
+      "command-line",
+      "raw-event-content"
+    ]
+  },
+  "compatibility": {
+    "documentation_reference_version": "7.5.1",
+    "tested_versions": [],
+    "execution_validation": "not-independently-executed"
+  },
+  "references": [
+    {
+      "title": "Creating a New Advanced Search",
+      "publisher": "Fortinet",
+      "url": "https://docs.fortinet.com/document/fortisiem/7.5.1/user-guide/431900/creating-a-new-advanced-search",
+      "accessed_on": "2026-08-12"
+    },
+    {
+      "title": "Process Creation Data Model",
+      "publisher": "Fortinet",
+      "url": "https://docs.fortinet.com/document/fortisiem/7.5.1/fortisiem-event-data-model/892201/process-creation-data-model",
+      "accessed_on": "2026-08-12"
+    },
+    {
+      "title": "FortiSIEM Event Categories and Handling",
+      "publisher": "Fortinet",
+      "url": "https://docs.fortinet.com/document/fortisiem/7.5.1/user-guide/604340/fortisiem-event-categories-and-handling",
+      "accessed_on": "2026-08-12"
+    },
+    {
+      "title": "Nmap Reference Guide",
+      "publisher": "Nmap Project",
+      "url": "https://nmap.org/book/man.html",
+      "accessed_on": "2026-08-12"
+    },
+    {
+      "title": "Zenmap GUI Users' Guide",
+      "publisher": "Nmap Project",
+      "url": "https://nmap.org/book/zenmap.html",
+      "accessed_on": "2026-08-12"
+    },
+    {
+      "title": "Nping Reference Guide",
+      "publisher": "Nmap Project",
+      "url": "https://nmap.org/book/nping-man.html",
+      "accessed_on": "2026-08-12"
+    },
+    {
+      "title": "Network Service Discovery",
+      "publisher": "MITRE ATT&CK",
+      "url": "https://attack.mitre.org/techniques/T1046/",
+      "accessed_on": "2026-08-12"
+    }
+  ],
+  "license": "MIT"
+}

@@ -23,6 +23,7 @@ contoh aman untuk menunjukkan posisi, format, tipe, dan quoting parameter.
 | Period start | `2026-08-17 00:00:00` | Format ClickHouse `YYYY-MM-DD HH:MM:SS` |
 | Period end | `2026-08-18 00:00:00` | Harus lebih besar dari period start |
 | Timezone | `UTC` | Zona waktu IANA yang netral |
+| Lookback | `30` | Contoh jumlah hari ke belakang |
 | Heartbeat window | `600` | Contoh numerik dalam detik |
 | Target persentase | `90` | Contoh numerik 0 sampai 100 |
 | Delay threshold | `3600` | Contoh numerik dalam detik |
@@ -59,6 +60,7 @@ satu kesatuan.
 - [Contoh dummy kualitas timestamp dan delay ingestion](queries/data-quality/FSQ-DQ-001-parsed-event-source-timestamp-coverage-and-ingestion-delay-anomalies/query.example.sql.tmpl)
 - [Contoh dummy pencarian indikator potensi SQL injection](queries/threat-hunting/FSQ-HUNT-001-potential-sql-injection-indicator-matches/query.example.sql.tmpl)
 - [Contoh dummy pencarian referensi file shadow Linux](queries/threat-hunting/FSQ-HUNT-002-potential-linux-shadow-file-reference-matches/query.example.sql.tmpl)
+- [Contoh dummy pencarian indikator potensi eksekusi Nmap](queries/threat-hunting/FSQ-HUNT-003-potential-nmap-execution-indicator-matches/query.example.sql.tmpl)
 
 ## Aturan Keamanan
 
